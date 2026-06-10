@@ -22,42 +22,38 @@ export const clientTools = [
     inputSchema: { clientId: z.string() },
     handler: async (apiKey, args) => appClient.get(apiKey, `/api/clients/${args.clientId}/projects`),
   },
-  /*
   {
-    name: 'clients_get_times',
-    description: 'Get time entries logged against a client.',
-    inputSchema: { clientId: z.string() },
-    handler: async (apiKey, args) => appClient.get(apiKey, `/api/clients/${args.clientId}/times`),
+    name: 'clients_autocomplete',
+    description: 'Search clients by name substring. Returns up to 15 matching clients with their _id and name. Useful for resolving a client name to an ID.',
+    inputSchema: { q: z.string().describe('Search string') },
+    handler: async (apiKey, args) => appClient.get(apiKey, '/api/autocomplete/clients', { q: args.q }),
   },
-  {
-    name: 'clients_history',
-    description: 'Get recently created clients for the authenticated user.',
-    inputSchema: {},
-    handler: async (apiKey) => appClient.get(apiKey, '/api/clients/history'),
-  },
-  */
   {
     name: 'clients_create',
     description: 'Create a new client.',
     inputSchema: { name: z.string().describe('Client name') },
-    handler: async (apiKey, args) => appClient.post(apiKey, '/api/clients', { name: args.name }),
+    handler: async (apiKey, args) => appClient.post(apiKey, '/api/clients/insert', { name: args.name }),
   },
   {
     name: 'clients_update',
-    description: "Update a client's details.",
+    description: "Update a client's details. This is a full replacement — all fields must be provided. Call clients_get first to read the current values, then send the full document with your changes applied.",
     inputSchema: {
       clientId: z.string(),
-      name: z.string().optional(),
+      name: z.string().min(2),
+      reminder: z.string(),
+      tel: z.string().optional(),
+      email: z.string().optional(),
+      address: z.string().optional(),
     },
     handler: async (apiKey, args) => {
       const { clientId, ...body } = args;
-      return appClient.put(apiKey, `/api/clients/${clientId}`, body);
+      return appClient.put(apiKey, `/api/clients/${clientId}/update`, body);
     },
   },
   {
     name: 'clients_delete',
     description: 'Delete a client.',
     inputSchema: { clientId: z.string() },
-    handler: async (apiKey, args) => appClient.delete(apiKey, `/api/clients/${args.clientId}`),
+    handler: async (apiKey, args) => appClient.delete(apiKey, `/api/clients/${args.clientId}/delete`),
   },
 ];

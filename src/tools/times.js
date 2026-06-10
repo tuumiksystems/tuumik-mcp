@@ -12,20 +12,8 @@ export const timeTools = [
       startMinute: z.number().describe('Start time as minutes from midnight (0–1439)'),
     },
     handler: async (apiKey, args) =>
-      appClient.post(apiKey, '/api/times', { date: args.date, startMinute: args.startMinute }),
+      appClient.post(apiKey, '/api/times/insert', { date: args.date, startMinute: args.startMinute }),
   },
-  /*
-  {
-    name: 'times_copy',
-    description: 'Copy an existing time entry to a new start minute on the same date.',
-    inputSchema: {
-      id: z.string().describe('ID of the time entry to copy'),
-      startMinute: z.number().describe('Start minute for the new copy'),
-    },
-    handler: async (apiKey, args) =>
-      appClient.post(apiKey, `/api/times/${args.id}/copy`, { startMinute: args.startMinute }),
-  },
-  */
   {
     name: 'times_delete',
     description: 'Delete a time entry.',
@@ -33,7 +21,7 @@ export const timeTools = [
       id: z.string().describe('ID of the time entry to delete'),
     },
     handler: async (apiKey, args) =>
-      appClient.delete(apiKey, `/api/times/${args.id}`),
+      appClient.delete(apiKey, `/api/times/${args.id}/delete`),
   },
   {
     name: 'times_set_plan',
@@ -43,7 +31,7 @@ export const timeTools = [
       plan: z.string().describe('Plan text'),
     },
     handler: async (apiKey, args) =>
-      appClient.patch(apiKey, `/api/times/${args.id}/plan`, { plan: args.plan }),
+      appClient.patch(apiKey, `/api/times/${args.id}/plan/set`, { plan: args.plan }),
   },
   {
     name: 'times_set_timing',
@@ -55,7 +43,7 @@ export const timeTools = [
       move: z.boolean().optional().describe('If true, shift the entry while preserving its duration'),
     },
     handler: async (apiKey, args) =>
-      appClient.patch(apiKey, `/api/times/${args.id}/timing`, {
+      appClient.patch(apiKey, `/api/times/${args.id}/timing/set`, {
         startMinute: args.startMinute,
         endMinute: args.endMinute,
         move: args.move,
@@ -71,7 +59,7 @@ export const timeTools = [
       clearAll: z.boolean().optional().describe('If true, remove both client and project'),
     },
     handler: async (apiKey, args) =>
-      appClient.patch(apiKey, `/api/times/${args.id}/project`, {
+      appClient.patch(apiKey, `/api/times/${args.id}/project/set`, {
         projectId: args.projectId,
         clearProject: args.clearProject,
         clearAll: args.clearAll,
@@ -86,7 +74,7 @@ export const timeTools = [
       clear: z.boolean().optional().describe('If true, remove the client (and project)'),
     },
     handler: async (apiKey, args) =>
-      appClient.patch(apiKey, `/api/times/${args.id}/client`, {
+      appClient.patch(apiKey, `/api/times/${args.id}/client/set`, {
         clientId: args.clientId,
         clear: args.clear,
       }),
@@ -102,33 +90,13 @@ export const timeTools = [
       hideHistory: z.boolean().optional().describe('Hide this entry from history suggestions'),
     },
     handler: async (apiKey, args) =>
-      appClient.patch(apiKey, `/api/times/${args.id}/task`, {
+      appClient.patch(apiKey, `/api/times/${args.id}/task/set`, {
         taskDesc: args.taskDesc,
         taskType: args.taskType,
         intCom: args.intCom,
         hideHistory: args.hideHistory,
       }),
   },
-  /*
-  {
-    name: 'times_fill',
-    description: 'Fill a time entry from history data (project, task type, task description).',
-    inputSchema: {
-      id: z.string(),
-      projectId: z.string().optional(),
-      taskType: z.string().optional(),
-      taskDesc: z.string().optional(),
-      useTaskType: z.boolean().optional(),
-    },
-    handler: async (apiKey, args) =>
-      appClient.patch(apiKey, `/api/times/${args.id}/fill`, {
-        projectId: args.projectId,
-        taskType: args.taskType,
-        taskDesc: args.taskDesc,
-        useTaskType: args.useTaskType,
-      }),
-  },
-  */
   {
     name: 'times_set_date',
     description: 'Move a time entry to a different date.',
@@ -137,7 +105,7 @@ export const timeTools = [
       date: z.string().describe('New date in YYYY-MM-DD format'),
     },
     handler: async (apiKey, args) =>
-      appClient.patch(apiKey, `/api/times/${args.id}/date`, { date: args.date }),
+      appClient.patch(apiKey, `/api/times/${args.id}/date/set`, { date: args.date }),
   },
   {
     name: 'times_recent',
@@ -148,87 +116,4 @@ export const timeTools = [
     handler: async (apiKey, args) =>
       appClient.get(apiKey, '/api/times/recent', { cutoff: args.cutoff }),
   },
-  /*
-  {
-    name: 'times_history_self',
-    description: 'Get time history for the authenticated user.',
-    inputSchema: {
-      excludeTimeId: z.string().optional().describe('Exclude a specific time entry ID from results'),
-      limit: z.number().optional().describe('Max results (default 50, max 200)'),
-    },
-    handler: async (apiKey, args) =>
-      appClient.get(apiKey, '/api/times/history/self', { excludeTimeId: args.excludeTimeId, limit: args.limit }),
-  },
-  {
-    name: 'times_history_project_self',
-    description: "Get the authenticated user's time history scoped to a specific project.",
-    inputSchema: {
-      projectId: z.string(),
-      excludeTimeId: z.string().optional(),
-      limit: z.number().optional(),
-    },
-    handler: async (apiKey, args) =>
-      appClient.get(apiKey, `/api/times/history/project/${args.projectId}/self`, {
-        excludeTimeId: args.excludeTimeId,
-        limit: args.limit,
-      }),
-  },
-  {
-    name: 'times_history_project_others',
-    description: 'Get time history of other team members scoped to a specific project.',
-    inputSchema: {
-      projectId: z.string(),
-      limit: z.number().optional(),
-    },
-    handler: async (apiKey, args) =>
-      appClient.get(apiKey, `/api/times/history/project/${args.projectId}/others`, { limit: args.limit }),
-  },
-  {
-    name: 'times_history_client_self',
-    description: "Get the authenticated user's time history scoped to a specific client.",
-    inputSchema: {
-      clientId: z.string(),
-      excludeTimeId: z.string().optional(),
-      limit: z.number().optional(),
-    },
-    handler: async (apiKey, args) =>
-      appClient.get(apiKey, `/api/times/history/client/${args.clientId}/self`, {
-        excludeTimeId: args.excludeTimeId,
-        limit: args.limit,
-      }),
-  },
-  {
-    name: 'times_history_client_others',
-    description: 'Get time history of other team members scoped to a specific client.',
-    inputSchema: {
-      clientId: z.string(),
-      limit: z.number().optional(),
-    },
-    handler: async (apiKey, args) =>
-      appClient.get(apiKey, `/api/times/history/client/${args.clientId}/others`, { limit: args.limit }),
-  },
-  {
-    name: 'times_history_search',
-    description: 'Search time history with filters.',
-    inputSchema: {
-      taskDesc: z.string().optional().describe('Filter by task description (substring match)'),
-      owner: z.string().optional().describe('Filter by user ID'),
-      scope: z.string().optional().describe('Scope filter (e.g. "self", "team")'),
-      projectId: z.string().optional(),
-      clientId: z.string().optional(),
-      sort: z.string().optional().describe('Sort order'),
-      limit: z.number().optional(),
-    },
-    handler: async (apiKey, args) =>
-      appClient.post(apiKey, '/api/times/history/search', {
-        taskDesc: args.taskDesc,
-        owner: args.owner,
-        scope: args.scope,
-        projectId: args.projectId,
-        clientId: args.clientId,
-        sort: args.sort,
-        limit: args.limit,
-      }),
-  },
-  */
 ];

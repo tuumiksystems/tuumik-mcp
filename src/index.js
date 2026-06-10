@@ -12,7 +12,8 @@ import { inoutTools } from './tools/inout.js';
 import { explorerTools } from './tools/explorer.js';
 import { monitorTools } from './tools/monitor.js';
 import { taskGroupTools } from './tools/taskgroups.js';
-// import { adminTools } from './tools/admin.js';
+import { userTools } from './tools/users.js';
+import { DATA_MODEL } from './resources/data-model.js';
 
 const PORT = process.env.PORT || 3100;
 
@@ -25,11 +26,20 @@ const allTools = [
   ...explorerTools,
   ...monitorTools,
   ...taskGroupTools,
-  // ...adminTools,
+  ...userTools,
 ];
 
 function createServer() {
   const server = new McpServer({ name: 'tuumik', version: '1.0.0' });
+
+  server.resource(
+    'data-model',
+    'docs://data-model',
+    { description: 'Describes the two tracking types (billable times and in/out board), their collections, field schemas, and which tools query each.' },
+    async () => ({
+      contents: [{ uri: 'docs://data-model', text: DATA_MODEL, mimeType: 'text/plain' }],
+    }),
+  );
 
   for (const tool of allTools) {
     server.registerTool(

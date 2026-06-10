@@ -48,7 +48,7 @@ export const explorerTools = [
       color: z.string().describe('Color value'),
     },
     handler: async (apiKey, args) =>
-      appClient.put(apiKey, '/api/explorer/tag-color', { selTimes: args.selTimes, color: args.color }),
+      appClient.put(apiKey, '/api/explorer/tag-color/update', { selTimes: args.selTimes, color: args.color }),
   },
   {
     name: 'explorer_tag_text',
@@ -58,6 +58,6 @@ export const explorerTools = [
       text: z.string().describe('Tag text'),
     },
     handler: async (apiKey, args) =>
-      appClient.put(apiKey, '/api/explorer/tag-text', { selTimes: args.selTimes, text: args.text }),
+      appClient.put(apiKey, '/api/explorer/tag-text/update', { selTimes: args.selTimes, text: args.text }),
   },
 ];

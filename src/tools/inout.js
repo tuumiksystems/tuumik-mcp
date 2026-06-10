@@ -3,56 +3,49 @@
 import { z } from 'zod';
 import { appClient } from '../appClient.js';
 
+const boardSchema = z.object({
+  status: z.string().optional().describe('In/out status value'),
+  note: z.string().optional().describe('Note text'),
+  eta: z.string().optional().describe('ETA value'),
+});
+
 export const inoutTools = [
   {
-    name: 'inout_set_status_self',
-    description: 'Set the in/out status for the authenticated user.',
-    inputSchema: { status: z.string().describe('Status value (e.g. "in", "out")') },
-    handler: async (apiKey, args) =>
-      appClient.patch(apiKey, '/api/inout/self/status', { status: args.status }),
-  },
-  {
-    name: 'inout_set_note_self',
-    description: 'Set the in/out note for the authenticated user.',
-    inputSchema: { note: z.string() },
-    handler: async (apiKey, args) =>
-      appClient.patch(apiKey, '/api/inout/self/note', { note: args.note }),
-  },
-  {
-    name: 'inout_set_eta_self',
-    description: 'Set the ETA (estimated time of arrival/return) for the authenticated user.',
-    inputSchema: { eta: z.string().describe('ETA value') },
-    handler: async (apiKey, args) =>
-      appClient.patch(apiKey, '/api/inout/self/eta', { eta: args.eta }),
-  },
-  {
-    name: 'inout_set_status_user',
-    description: 'Set the in/out status for another user (requires permission).',
+    name: 'inout_board',
+    description: 'Load current in/out board data for users. Filter by teamId to get all users in a team, or by searchedUserId to get a specific user.',
     inputSchema: {
-      userId: z.string(),
-      status: z.string(),
+      teamId: z.string().optional().describe('Filter by team ID'),
+      searchedUserId: z.string().optional().describe('Filter to a specific user ID'),
     },
     handler: async (apiKey, args) =>
-      appClient.patch(apiKey, `/api/inout/${args.userId}/status`, { status: args.status }),
+      appClient.get(apiKey, '/api/inout/board', { teamId: args.teamId, searchedUserId: args.searchedUserId }),
   },
   {
-    name: 'inout_set_note_user',
-    description: 'Set the in/out note for another user (requires permission).',
+    name: 'inout_board_history',
+    description: 'Load in/out board history for one or more users over a date range. Returns status records from the Statuses collection (each record has userId, start, end, status, note, eta, updaters).',
     inputSchema: {
-      userId: z.string(),
-      note: z.string(),
+      userIds: z.array(z.string()).min(1).describe('User IDs to load history for'),
+      startLocal: z.string().describe('Start of date range as ISO string'),
+      endLocal: z.string().describe('End of date range as ISO string'),
     },
     handler: async (apiKey, args) =>
-      appClient.patch(apiKey, `/api/inout/${args.userId}/note`, { note: args.note }),
+      appClient.post(apiKey, '/api/inout/board-history', { userIds: args.userIds, startLocal: args.startLocal, endLocal: args.endLocal }),
   },
   {
-    name: 'inout_set_eta_user',
-    description: 'Set the ETA for another user (requires permission).',
+    name: 'inout_set_self',
+    description: 'Set in/out board data for the authenticated user. Provide any combination of status, note, and eta — only supplied fields are updated.',
+    inputSchema: { board: boardSchema },
+    handler: async (apiKey, args) =>
+      appClient.patch(apiKey, '/api/inout/set/self', { board: args.board }),
+  },
+  {
+    name: 'inout_set_user',
+    description: 'Set in/out board data for another user (requires permission). Provide any combination of status, note, and eta — only supplied fields are updated.',
     inputSchema: {
       userId: z.string(),
-      eta: z.string(),
+      board: boardSchema,
     },
     handler: async (apiKey, args) =>
-      appClient.patch(apiKey, `/api/inout/${args.userId}/eta`, { eta: args.eta }),
+      appClient.patch(apiKey, `/api/inout/set/${args.userId}`, { board: args.board }),
   },
 ];
