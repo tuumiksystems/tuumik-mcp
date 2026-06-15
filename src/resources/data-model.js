@@ -72,9 +72,12 @@ Times use a date + startMinute/endMinute (integers) to represent when work happe
 Statuses use start and end as plain UTC Date objects to represent availability periods.
 
 ## Tools and the data they query
-- explorer_query — queries the Times collection with rich filters (date range, clients, projects, users, task description, tags)
-- inout_board — returns current in/out status for users from Meteor.users
-- inout_board_history — returns Statuses documents (in/out history) for specified users over a date range
-- monitor_team — returns both Times and Statuses for a team or specific user over a date range
-- monitor_user — returns both Times and Statuses for a single user over a date range
+- timesheet_explorer_full — queries the Times collection with rich filters (date range, clients, projects, users, task description, tags) and returns matching documents
+- timesheet_explorer_totals — same filters as timesheet_explorer_full, but returns aggregated hour/minute totals per user and per project instead of documents
+- inout_board_current — returns current in/out status for users from Meteor.users
+- inout_board_history_full — returns Statuses documents (in/out history) for specified users over a date range
+- inout_board_history_totals — returns per-user totals of time spent in each in/out status over a date range
+
+## Choosing between *_full and *_totals tools
+For both pairs above, the *_totals tool is the default first choice: it is cheaper and faster since it returns aggregated numbers instead of every matching record. Only call the *_full tool when the user needs to see, list, or review the individual entries/records themselves (specific tasks, descriptions, tags, status notes, etc.) rather than aggregate totals.
 `.trim();

@@ -6,7 +6,7 @@ import { appClient } from '../appClient.js';
 export const projectTools = [
   {
     name: 'projects_list',
-    description: 'List all projects for a given client.',
+    description: 'List all projects for a given client. Requires the "catalog" permission.',
     inputSchema: { clientId: z.string().describe('Client ID to filter projects by') },
     handler: async (apiKey, args) =>
       appClient.get(apiKey, '/api/projects', { clientId: args.clientId }),
@@ -25,7 +25,7 @@ export const projectTools = [
   },
   {
     name: 'projects_create',
-    description: 'Create a new project.',
+    description: 'Create a new project. Requires the "projectsEdit" permission.',
     inputSchema: {
       name: z.string().describe('Project name'),
       clientId: z.string().describe('Client to associate this project with'),
@@ -35,7 +35,7 @@ export const projectTools = [
   },
   {
     name: 'projects_update',
-    description: "Update a project's details. This is a full replacement — all fields must be provided. Call projects_get first to read the current values, then send the full document with your changes applied.",
+    description: "Update a project's details. This is a full replacement — all fields must be provided. Call projects_get first to read the current values, then send the full document with your changes applied. Requires the \"projectsEdit\" permission.",
     inputSchema: {
       projectId: z.string(),
       name: z.string().min(2),
@@ -51,7 +51,7 @@ export const projectTools = [
   },
   {
     name: 'projects_delete',
-    description: 'Delete a project.',
+    description: 'Delete a project. Requires the "projectsEdit" permission.',
     inputSchema: { projectId: z.string() },
     handler: async (apiKey, args) => appClient.delete(apiKey, `/api/projects/${args.projectId}/delete`),
   },

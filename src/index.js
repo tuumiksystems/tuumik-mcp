@@ -9,10 +9,9 @@ import { timeTools } from './tools/times.js';
 import { clientTools } from './tools/clients.js';
 import { projectTools } from './tools/projects.js';
 import { inoutTools } from './tools/inout.js';
-import { explorerTools } from './tools/explorer.js';
-import { monitorTools } from './tools/monitor.js';
 import { taskGroupTools } from './tools/taskgroups.js';
 import { userTools } from './tools/users.js';
+import { timesheetExplorerTools } from './tools/timesheet-explorer.js';
 import { DATA_MODEL } from './resources/data-model.js';
 
 const PORT = process.env.PORT || 3100;
@@ -23,14 +22,16 @@ const allTools = [
   ...clientTools,
   ...projectTools,
   ...inoutTools,
-  ...explorerTools,
-  ...monitorTools,
   ...taskGroupTools,
   ...userTools,
+  ...timesheetExplorerTools,
 ];
 
 function createServer() {
-  const server = new McpServer({ name: 'tuumik', version: '1.0.0' });
+  const server = new McpServer(
+    { name: 'tuumik', version: '1.0.2' },
+    { instructions: 'At the start of every session, before calling any other tool, call session_init. It loads the current user\'s profile, role and permissions, and the tenant\'s settings (date/time formats, in/out options, teams, exporters, etc.), which are needed to interpret the data and permissions used by the other tools.' },
+  );
 
   server.resource(
     'data-model',

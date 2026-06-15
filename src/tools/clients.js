@@ -6,7 +6,7 @@ import { appClient } from '../appClient.js';
 export const clientTools = [
   {
     name: 'clients_list',
-    description: 'List all clients visible to the authenticated user.',
+    description: 'List all clients visible to the authenticated user. Requires the "catalog" permission.',
     inputSchema: {},
     handler: async (apiKey) => appClient.get(apiKey, '/api/clients'),
   },
@@ -30,13 +30,13 @@ export const clientTools = [
   },
   {
     name: 'clients_create',
-    description: 'Create a new client.',
+    description: 'Create a new client. Requires the "clientsEdit" permission.',
     inputSchema: { name: z.string().describe('Client name') },
     handler: async (apiKey, args) => appClient.post(apiKey, '/api/clients/insert', { name: args.name }),
   },
   {
     name: 'clients_update',
-    description: "Update a client's details. This is a full replacement — all fields must be provided. Call clients_get first to read the current values, then send the full document with your changes applied.",
+    description: "Update a client's details. This is a full replacement — all fields must be provided. Call clients_get first to read the current values, then send the full document with your changes applied. Requires the \"clientsEdit\" permission.",
     inputSchema: {
       clientId: z.string(),
       name: z.string().min(2),
@@ -52,7 +52,7 @@ export const clientTools = [
   },
   {
     name: 'clients_delete',
-    description: 'Delete a client.',
+    description: 'Delete a client. Requires the "clientsEdit" permission.',
     inputSchema: { clientId: z.string() },
     handler: async (apiKey, args) => appClient.delete(apiKey, `/api/clients/${args.clientId}/delete`),
   },
