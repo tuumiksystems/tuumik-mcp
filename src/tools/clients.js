@@ -36,11 +36,11 @@ export const clientTools = [
   },
   {
     name: 'clients_update',
-    description: "Update a client's details. This is a full replacement — all fields must be provided. Call clients_get first to read the current values, then send the full document with your changes applied. Requires the \"clientsEdit\" permission.",
+    description: "Update a client's details. Partial update: provide clientId plus only the fields you want to change; any field you omit is left unchanged. Requires the \"clientsEdit\" permission.",
     inputSchema: {
       clientId: z.string(),
-      name: z.string().min(2),
-      reminder: z.string(),
+      name: z.string().min(2).optional().describe('Client name (min 2 characters)'),
+      reminder: z.string().optional(),
       tel: z.string().optional(),
       email: z.string().optional(),
       address: z.string().optional(),

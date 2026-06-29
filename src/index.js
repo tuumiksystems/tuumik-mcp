@@ -29,7 +29,7 @@ const allTools = [
 
 function createServer() {
   const server = new McpServer(
-    { name: 'tuumik', version: '1.0.2' },
+    { name: 'tuumik', version: '1.0.3' },
     { instructions: 'At the start of every session, before calling any other tool, call session_init. It loads the current user\'s profile, role and permissions, and the tenant\'s settings (date/time formats, in/out options, teams, exporters, etc.), which are needed to interpret the data and permissions used by the other tools.' },
   );
 

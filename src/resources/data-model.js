@@ -15,6 +15,10 @@ Users track tasks for billable hours. Each document contains:
 - projectId — optional, linked project
 - taskDesc — task description text
 - taskType — task type identifier
+- useTaskType — optional boolean; if true, a taskType is expected on this entry (derived from the linked project's useTaskTypes, or the tenant default when no project is linked)
+- intCom — optional internal comment
+- hideHistory — boolean; if true, the entry is excluded from history suggestions
+- plan — boolean; if true, the entry represents planned time rather than actual tracked time
 
 ### 2. In/out board (availability tracking)
 Users track their availability status on an in/out board.
@@ -42,7 +46,7 @@ Clients are the top-level organisational unit for billable work. Each client doc
 - hidden — if true, the client is not shown to most users
 - allowAccess — array of user IDs who can access the client even when hidden
 
-Use clients_autocomplete to find a client ID by name. Use clients_get to read the full document before calling clients_update, as the update requires all fields.
+Use clients_autocomplete to find a client ID by name. clients_update is a partial update: pass the client ID plus only the fields you want to change; omitted fields are left unchanged.
 
 ## Projects
 Projects belong to a client and are the direct target of time entries. Each project document contains:
@@ -52,20 +56,20 @@ Projects belong to a client and are the direct target of time entries. Each proj
 - useTaskTypes — boolean; if true, a taskType should be set on time entries for this project
 - reminder — free-text reminder note (may be empty string)
 
-Use projects_autocomplete to find a project ID by name. Use projects_get to read the full document before calling projects_update, as the update requires all fields.
+Use projects_autocomplete to find a project ID by name. projects_update is a partial update: pass the project ID plus only the fields you want to change; omitted fields are left unchanged.
 
 ## Task groups and task types
-Task groups and task types are optional — tenants may choose not to use them at all. If a project has useTaskTypes set to false, taskType on time entries is not required and can be left unset.
+Task groups and task types are optional — tenants may choose not to use them at all. If a project has useTaskTypes set to false, taskType on time entries is not required: the entry is described entirely by the free-form taskDesc field, and the user provides all information themselves.
 
-When task types are used, they categorise work within a project. They are organised into task groups. Call task_groups_list to retrieve them.
+A task type is a short, predefined label, defined by the tenant, that precedes the task description on an entry. On a project that uses task types, the user picks a task type from a predefined list and then writes the task description manually. For example, an entry might read "review of document: Loan Agreement", where "review of document:" is the task type and "Loan Agreement" is the task description.
 
-Each task group contains:
-- name — display name of the group
+Task types are organised into task groups. Call task_groups_list to retrieve them. Each task group contains:
+- name — display name of the group; some tenants use it to denote a language (e.g. "English", "Estonian"), but that is only a naming convention, not a required meaning
 - position — sort order
 - showByDefault — whether the group is shown by default in the UI
-- types — array of task type objects, each with an id and name
+- types — array of task type objects, each with a txt field holding the task type's text
 
-The taskType field on a time entry holds the id of a type from one of these arrays. To set a task type on a time entry, look up the correct id from the task group returned by task_groups_list. Only task types from groups assigned to the time entry's project (via the project's taskGroupIds) are valid for that entry. If a project has useTaskTypes set to true, always set taskType when logging time against it.
+The taskType field on a time entry holds the txt string of a type (e.g. "review of document:"), not an id. To set a task type on an entry, copy the txt value from the appropriate task group returned by task_groups_list. Only task types from groups assigned to the entry's project (via the project's taskGroupIds) are valid for that entry. If a project has useTaskTypes set to true, always set taskType when logging time against it.
 
 ## Key difference between Times and Statuses
 Times use a date + startMinute/endMinute (integers) to represent when work happened.

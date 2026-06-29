@@ -35,14 +35,14 @@ export const projectTools = [
   },
   {
     name: 'projects_update',
-    description: "Update a project's details. This is a full replacement — all fields must be provided. Call projects_get first to read the current values, then send the full document with your changes applied. Requires the \"projectsEdit\" permission.",
+    description: "Update a project's details. Partial update: provide projectId plus only the fields you want to change; any field you omit is left unchanged. Requires the \"projectsEdit\" permission.",
     inputSchema: {
       projectId: z.string(),
-      name: z.string().min(2),
-      clientId: z.string(),
-      taskGroupIds: z.array(z.string()),
-      useTaskTypes: z.boolean(),
-      reminder: z.string(),
+      name: z.string().min(2).optional().describe('Project name (min 2 characters)'),
+      clientId: z.string().optional().describe('Client this project belongs to'),
+      taskGroupIds: z.array(z.string()).optional().describe('Task group IDs assigned to this project'),
+      useTaskTypes: z.boolean().optional().describe('Whether a taskType is expected on entries for this project'),
+      reminder: z.string().optional(),
     },
     handler: async (apiKey, args) => {
       const { projectId, ...body } = args;
